@@ -1,0 +1,131 @@
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AppLayout } from '@/components/layout'
+import { AuthProvider } from '@/stores/auth'
+import { useAuth } from '@/stores/auth'
+import { lazy, Suspense } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const SignIn = lazy(() => import('@/pages/auth/sign-in'))
+const SignUp = lazy(() => import('@/pages/auth/sign-up'))
+const Dashboard = lazy(() => import('@/pages/dashboard/dashboard'))
+const Members = lazy(() => import('@/pages/members/members'))
+const Subscriptions = lazy(() => import('@/pages/subscriptions/subscriptions'))
+const Payments = lazy(() => import('@/pages/payments/payments'))
+const Classes = lazy(() => import('@/pages/classes/classes'))
+const Attendance = lazy(() => import('@/pages/attendance/attendance'))
+const Staff = lazy(() => import('@/pages/staff/staff'))
+const StaffTimesheet = lazy(() => import('@/pages/staff/timesheet'))
+const StaffPlanning = lazy(() => import('@/pages/staff/planning'))
+const StaffLeaves = lazy(() => import('@/pages/staff/leaves'))
+const POS = lazy(() => import('@/pages/pos/pos'))
+const Equipment = lazy(() => import('@/pages/equipment/equipment'))
+const EquipmentReservations = lazy(() => import('@/pages/equipment/reservations'))
+const EquipmentReport = lazy(() => import('@/pages/equipment/report'))
+const Inventory = lazy(() => import('@/pages/inventory/inventory'))
+const Stock = lazy(() => import('@/pages/inventory/stock'))
+const Suppliers = lazy(() => import('@/pages/suppliers/suppliers'))
+const PurchaseOrders = lazy(() => import('@/pages/suppliers/purchase-orders'))
+const AccessControl = lazy(() => import('@/pages/access-control/access-control'))
+const Badges = lazy(() => import('@/pages/badges/badges'))
+const CheckInKiosk = lazy(() => import('@/pages/check-in-kiosk/kiosk'))
+const MemberPortal = lazy(() => import('@/pages/member-portal/portal'))
+const CoachMode = lazy(() => import('@/pages/coach-mode/coach-mode'))
+const Reports = lazy(() => import('@/pages/reports/reports'))
+const Corporate = lazy(() => import('@/pages/corporate/corporate'))
+const Gyms = lazy(() => import('@/pages/gyms/gyms'))
+const Licenses = lazy(() => import('@/pages/licenses/licenses'))
+const Notifications = lazy(() => import('@/pages/notifications/notifications'))
+const Settings = lazy(() => import('@/pages/settings/settings'))
+const Profile = lazy(() => import('@/pages/settings/profile'))
+const SuperAdmin = lazy(() => import('@/pages/super-admin/super-admin'))
+const Display = lazy(() => import('@/pages/display/display'))
+const Install = lazy(() => import('@/pages/install/install'))
+const Reception = lazy(() => import('@/pages/reception/reception'))
+
+function Loading() {
+  return <div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
+}
+
+function PageTransition({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading, userRole } = useAuth()
+  if (isLoading) return <Loading />
+  if (!isAuthenticated) return <Navigate to="/auth" replace />
+  if (userRole === "reception") return <Navigate to="/reception" replace />
+  return <>{children}</>
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading, userRole } = useAuth()
+  if (isLoading) return <Loading />
+  if (isAuthenticated && userRole === "reception") return <Navigate to="/reception" replace />
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />
+  return <>{children}</>
+}
+
+export default function App() {
+  const location = useLocation()
+
+  return (
+    <AuthProvider>
+      <Suspense fallback={<Loading />}>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/auth" element={<PublicRoute><Suspense fallback={<Loading />}><SignIn /></Suspense></PublicRoute>} />
+            <Route path="/auth/sign-up" element={<PublicRoute><Suspense fallback={<Loading />}><SignUp /></Suspense></PublicRoute>} />
+            <Route path="/reception" element={<Suspense fallback={<Loading />}><Reception /></Suspense>} />
+            <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<PageTransition><Suspense fallback={<Loading />}><Dashboard /></Suspense></PageTransition>} />
+              <Route path="members" element={<PageTransition><Suspense fallback={<Loading />}><Members /></Suspense></PageTransition>} />
+              <Route path="subscriptions" element={<PageTransition><Suspense fallback={<Loading />}><Subscriptions /></Suspense></PageTransition>} />
+              <Route path="payments" element={<PageTransition><Suspense fallback={<Loading />}><Payments /></Suspense></PageTransition>} />
+              <Route path="classes" element={<PageTransition><Suspense fallback={<Loading />}><Classes /></Suspense></PageTransition>} />
+              <Route path="attendance" element={<PageTransition><Suspense fallback={<Loading />}><Attendance /></Suspense></PageTransition>} />
+              <Route path="staff" element={<PageTransition><Suspense fallback={<Loading />}><Staff /></Suspense></PageTransition>} />
+              <Route path="staff/timesheet" element={<PageTransition><Suspense fallback={<Loading />}><StaffTimesheet /></Suspense></PageTransition>} />
+              <Route path="staff/planning" element={<PageTransition><Suspense fallback={<Loading />}><StaffPlanning /></Suspense></PageTransition>} />
+              <Route path="staff/leaves" element={<PageTransition><Suspense fallback={<Loading />}><StaffLeaves /></Suspense></PageTransition>} />
+              <Route path="pos" element={<PageTransition><Suspense fallback={<Loading />}><POS /></Suspense></PageTransition>} />
+              <Route path="equipment" element={<PageTransition><Suspense fallback={<Loading />}><Equipment /></Suspense></PageTransition>} />
+              <Route path="equipment/reservations" element={<PageTransition><Suspense fallback={<Loading />}><EquipmentReservations /></Suspense></PageTransition>} />
+              <Route path="equipment/report" element={<PageTransition><Suspense fallback={<Loading />}><EquipmentReport /></Suspense></PageTransition>} />
+              <Route path="inventory" element={<PageTransition><Suspense fallback={<Loading />}><Inventory /></Suspense></PageTransition>} />
+              <Route path="stock" element={<PageTransition><Suspense fallback={<Loading />}><Stock /></Suspense></PageTransition>} />
+              <Route path="suppliers" element={<PageTransition><Suspense fallback={<Loading />}><Suppliers /></Suspense></PageTransition>} />
+              <Route path="purchase-orders" element={<PageTransition><Suspense fallback={<Loading />}><PurchaseOrders /></Suspense></PageTransition>} />
+              <Route path="access-control" element={<PageTransition><Suspense fallback={<Loading />}><AccessControl /></Suspense></PageTransition>} />
+              <Route path="badges" element={<PageTransition><Suspense fallback={<Loading />}><Badges /></Suspense></PageTransition>} />
+              <Route path="check-in-kiosk" element={<PageTransition><Suspense fallback={<Loading />}><CheckInKiosk /></Suspense></PageTransition>} />
+              <Route path="member-portal" element={<PageTransition><Suspense fallback={<Loading />}><MemberPortal /></Suspense></PageTransition>} />
+              <Route path="coach-mode" element={<PageTransition><Suspense fallback={<Loading />}><CoachMode /></Suspense></PageTransition>} />
+              <Route path="reports" element={<PageTransition><Suspense fallback={<Loading />}><Reports /></Suspense></PageTransition>} />
+              <Route path="corporate" element={<PageTransition><Suspense fallback={<Loading />}><Corporate /></Suspense></PageTransition>} />
+              <Route path="gyms" element={<PageTransition><Suspense fallback={<Loading />}><Gyms /></Suspense></PageTransition>} />
+              <Route path="licenses" element={<PageTransition><Suspense fallback={<Loading />}><Licenses /></Suspense></PageTransition>} />
+              <Route path="notifications" element={<PageTransition><Suspense fallback={<Loading />}><Notifications /></Suspense></PageTransition>} />
+              <Route path="settings" element={<PageTransition><Suspense fallback={<Loading />}><Settings /></Suspense></PageTransition>} />
+              <Route path="profile" element={<PageTransition><Suspense fallback={<Loading />}><Profile /></Suspense></PageTransition>} />
+              <Route path="super-admin" element={<PageTransition><Suspense fallback={<Loading />}><SuperAdmin /></Suspense></PageTransition>} />
+              <Route path="display" element={<PageTransition><Suspense fallback={<Loading />}><Display /></Suspense></PageTransition>} />
+              <Route path="install" element={<PageTransition><Suspense fallback={<Loading />}><Install /></Suspense></PageTransition>} />
+            </Route>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </AnimatePresence>
+      </Suspense>
+    </AuthProvider>
+  )
+}
